@@ -1,0 +1,51 @@
+daemon off;
+
+worker_processes <%= ENV["NGINX_WORKERS"] || 4 %>;
+
+events {
+  use epoll;
+  accept_mutex on;
+  worker_connections 1024;
+}
+
+http {
+  gzip on;
+  gzip_comp_level 2;
+  gzip_min_length 512;
+
+  server_tokens off;
+
+  log_format l2met "measure#nginx.service=$request_time request_id=$http_x_request_id";
+  access_log logs/nginx/access.log l2met;
+  error_log logs/nginx/error.log;
+
+  include mime.types;
+  default_type application/octet-stream;
+  sendfile on;
+
+  server {
+    listen <%= ENV["PORT"] %>;
+    server_name _;
+    keepalive_timeout 5;
+    root dist;
+    index index.html;
+
+    location / {
+      if (!-e $request_filename){
+        rewrite ^(.*)$ /index.html break;
+      }
+    }
+
+    location ~* .(ogg|ogv|svg|svgz|eot|otf|woff|mp4|ttf|css|rss|atom|js|jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|doc|xls|exe|ppt|tar|mid|midi|wav|bmp|rtf|html|txt|htm)$ {
+      expires max;
+      log_not_found off;
+      access_log off;
+      add_header Cache-Control public;
+      fastcgi_hide_header Set-Cookie;
+    }
+
+    location ~* "^.*?\.(eot)|(ttf)|(woff)$" {
+      add_header Access-Control-Allow-Origin *;
+    }
+  }
+}

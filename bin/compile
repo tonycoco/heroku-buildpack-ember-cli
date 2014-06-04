@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+set -e            # fail fast
+set -o pipefail   # don't ignore exit codes when piping output
+# set -x          # enable debugging
+
+build_dir=$1
+cache_dir=$2
+env_dir=$3
+buildpack_dir=$(cd $(dirname $0); cd ..; pwd)
+
+# Load some convenience functions like status(), echo(), and indent()
+source $buildpack_dir/bin/common.sh
+
+mkdir -p $build_dir/vendor
+
+status "Downloading and installing node"
+node_version=0.10.26
+node_url=http://s3pository.heroku.com/node/v$node_version/node-v$node_version-linux-x64.tar.gz
+curl $node_url -s -o - | tar xzf - -C $build_dir
+mv $build_dir/node-v$node_version-linux-x64 $build_dir/vendor/node
+chmod +x $build_dir/vendor/node/bin/*
+PATH=$build_dir/vendor/node/bin:$PATH
+
+status "Downloading and installing nginx"
+nginx_url=http://www.brettwhitelaw.com/pkg/nginx-1.6.0.tar.gz
+curl $nginx_url -s -o - | tar xzf - -C $build_dir/vendor
+
+status "Adding boot script"
+cp $buildpack_dir/bin/boot.sh $build_dir
+
+status "Copying configs"
+mkdir -p $build_dir/config
+cp $buildpack_dir/config/mime.types $build_dir/config
+if [[ ! -f $build_dir/config/nginx.conf.erb ]]; then
+  cp $buildpack_dir/config/nginx.conf.erb $build_dir/config
+else
+  status "Custom nginx config found"
+fi
+
+cd $build_dir
+
+status "Installing dependencies"
+trap cat_npm_debug_log ERR # Output npm debug info on error
+npm install bower --quiet | indent
+npm install --quiet | indent
+
+status "Building Ember CLI application production distribution"
+node_modules/.bin/bower install --quiet | indent
+node_modules/ember-cli/bin/ember build --environment production | indent
