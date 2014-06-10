@@ -16,4 +16,4 @@ Creating a new Heroku instance from an Ember CLI application's parent directory:
     -----> Fetching custom buildpack
     ...
 
-Need to make a custom nginx configuration change? No problem. In your Ember CLI application, add a `config/nginx.conf.erb` file. You can copy the existing file in this repo and make your changes to it.
+Need to make a custom nginx configuration change? No problem. In your Ember CLI application, add a `config/nginx.conf.erb` file. You can copy the existing configuration file in this repo and make your changes to it.
