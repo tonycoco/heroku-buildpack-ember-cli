@@ -4,6 +4,7 @@ set -e            # fail fast
 set -o pipefail   # don't ignore exit codes when piping output
 # set -x          # enable debugging
 
+build_env=${EMBER_ENV:-production}
 build_dir=$1
 cache_dir=$2
 env_dir=$3
@@ -45,6 +46,6 @@ trap cat_npm_debug_log ERR # Output npm debug info on error
 npm install bower --quiet | indent
 npm install --quiet | indent
 
-status "Building Ember CLI application production distribution"
+status "Building Ember CLI application $build_env distribution"
 node_modules/.bin/bower install --quiet | indent
-node_modules/ember-cli/bin/ember build --environment production | indent
+node_modules/ember-cli/bin/ember build --environment $build_env | indent
