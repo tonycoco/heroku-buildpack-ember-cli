@@ -4,7 +4,6 @@ set -e            # fail fast
 set -o pipefail   # don't ignore exit codes when piping output
 # set -x          # enable debugging
 
-build_env=${EMBER_ENV:-production}
 build_dir=$1
 cache_dir=$2
 env_dir=$3
@@ -12,6 +11,9 @@ buildpack_dir=$(cd $(dirname $0); cd ..; pwd)
 
 # Load some convenience functions like status(), echo(), and indent()
 source $buildpack_dir/bin/common.sh
+
+export_env_dir $env_dir
+build_env=${EMBER_ENV:-production}
 
 mkdir -p $build_dir/vendor
 
