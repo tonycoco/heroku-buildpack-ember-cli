@@ -31,6 +31,9 @@ http {
     index index.html;
 
     location / {
+    
+      expires off;
+    
       if (!-e $request_filename){
         rewrite ^(.*)$ /index.html break;
       }
