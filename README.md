@@ -20,9 +20,13 @@ Creating a new Heroku instance from an Ember CLI application's parent directory:
 
 You can set a few different environment variables to turn on features in this buildpack.
 
+#### Nginx Workers
+
 Set the number of workers for Nginx (Default: `4`):
 
     heroku config:set NGINX_WORKERS=4
+
+#### API Proxy
 
 Set an API proxy URL:
 
@@ -32,7 +36,7 @@ Set your API's prefix path (Default: `/api/`):
 
     heroku config:set API_PREFIX_PATH=/api/
 
-*For more information about API proxies [read this](http://oskarhane.com/avoid-cors-with-nginx-proxy_pass).*
+*For more information about API proxies and avoiding CORS, [read this](http://oskarhane.com/avoid-cors-with-nginx-proxy_pass).*
 
 ### Custom
 
