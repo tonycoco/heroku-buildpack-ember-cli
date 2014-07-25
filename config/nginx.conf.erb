@@ -32,7 +32,7 @@ http {
 
     location / {
       expires off;
-    
+
       if (!-e $request_filename){
         rewrite ^(.*)$ /index.html break;
       }
@@ -49,5 +49,17 @@ http {
     location ~* "^.*?\.(eot)|(ttf)|(woff)$" {
       add_header Access-Control-Allow-Origin *;
     }
+
+    <% if ENV["API_URL"] %>
+      location <%= ENV["API_PREFIX_PATH"] || "/api/" %> {
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-NginX-Proxy true;
+        proxy_pass <%= ENV["API_URL"] %>;
+        proxy_ssl_session_reuse off;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+      }
+    <% end %>
   }
 }
