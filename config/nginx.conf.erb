@@ -36,7 +36,7 @@ http {
       if (!-e $request_filename){
         rewrite ^(.*)$ /index.html break;
       }
-      // uncomment the following lines if you want to force https
+      # uncomment the following lines if you want to force https
       if ( $http_x_forwarded_proto != 'https' ) {
         return 301 https://$host$request_uri;
       }
@@ -49,7 +49,7 @@ http {
       access_log off;
       add_header Cache-Control public;
       fastcgi_hide_header Set-Cookie;
-      // uncomment the following lines if you want to force https
+      # uncomment the following lines if you want to force https
       if ( $http_x_forwarded_proto != 'https' ) {
         return 301 https://$host$request_uri;
       }
