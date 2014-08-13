@@ -36,6 +36,13 @@ http {
       if (!-e $request_filename){
         rewrite ^(.*)$ /index.html break;
       }
+
+      # uncomment the following lines if you want to force https
+      # if ( $http_x_forwarded_proto != 'https' ) {
+      #   return 301 https://$host$request_uri;
+      # }
+      # add_header Strict-Transport-Security "max-age=31536000; includeSubDomains;";
+
     }
 
     location ~* .(ogg|ogv|svg|svgz|eot|otf|woff|mp4|ttf|css|rss|atom|js|jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|doc|xls|exe|ppt|tar|mid|midi|wav|bmp|rtf|html|txt|htm)$ {
@@ -44,6 +51,13 @@ http {
       access_log off;
       add_header Cache-Control public;
       fastcgi_hide_header Set-Cookie;
+
+      # uncomment the following lines if you want to force https
+      # if ( $http_x_forwarded_proto != 'https' ) {
+      #   return 301 https://$host$request_uri;
+      # }
+      # add_header Strict-Transport-Security "max-age=31536000; includeSubDomains;";
+
     }
 
     location ~* "^.*?\.(eot)|(ttf)|(woff)$" {
