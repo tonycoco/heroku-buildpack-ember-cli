@@ -34,6 +34,7 @@ cp $buildpack_dir/bin/boot.sh $build_dir
 
 status "Copying configs"
 mkdir -p $build_dir/config
+cp $buildpack_dir/config/htpasswd.rb $build_dir/config
 cp $buildpack_dir/config/mime.types $build_dir/config
 if [[ ! -f $build_dir/config/nginx.conf.erb ]]; then
   cp $buildpack_dir/config/nginx.conf.erb $build_dir/config

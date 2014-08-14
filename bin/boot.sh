@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+ruby $HOME/config/htpasswd.rb
 erb $HOME/config/nginx.conf.erb > $HOME/config/nginx.conf
 
 mkdir -p $HOME/logs/nginx
