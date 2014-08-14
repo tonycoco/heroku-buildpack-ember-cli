@@ -38,6 +38,14 @@ Set your API's prefix path (Default: `/api/`):
 
 *For more information about API proxies and avoiding CORS, [read this](http://oskarhane.com/avoid-cors-with-nginx-proxy_pass).*
 
+#### HTTP BASIC AUTH
+
+When `BASIC_AUTH_USER` and `BASIC_AUTH_PASSWORD` are set Basic access authentication will be activated. 
+Make sure to use `https` when you set this up.
+
+    heroku config:set BASIC_AUTH_USER=THEUSER
+    heroku config:set BASIC_AUTH_PASSWORD=APASSWORD
+
 ### Custom
 
 Need to make a custom nginx configuration change? No problem. In your Ember CLI application, add a `config/nginx.conf.erb` file. You can copy the existing configuration file in this repo and make your changes to it.
