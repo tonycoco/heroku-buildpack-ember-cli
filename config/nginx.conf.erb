@@ -38,10 +38,10 @@ http {
       }
 
       # uncomment the following lines if you want to force https
-      # if ( $http_x_forwarded_proto != 'https' ) {
-      #   return 301 https://$host$request_uri;
-      # }
-      # add_header Strict-Transport-Security "max-age=31536000; includeSubDomains;";
+      if ( $http_x_forwarded_proto != 'https' ) {
+        return 301 https://$host$request_uri;
+      }
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains;";
 
     }
 
@@ -53,10 +53,10 @@ http {
       fastcgi_hide_header Set-Cookie;
 
       # uncomment the following lines if you want to force https
-      # if ( $http_x_forwarded_proto != 'https' ) {
-      #   return 301 https://$host$request_uri;
-      # }
-      # add_header Strict-Transport-Security "max-age=31536000; includeSubDomains;";
+      if ( $http_x_forwarded_proto != 'https' ) {
+        return 301 https://$host$request_uri;
+      }
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains;";
 
     }
 
