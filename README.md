@@ -38,13 +38,14 @@ Set your API's prefix path (Default: `/api/`):
 
 *For more information about API proxies and avoiding CORS, [read this](http://oskarhane.com/avoid-cors-with-nginx-proxy_pass).*
 
-#### HTTP BASIC AUTH
+#### Authentication
 
-When `BASIC_AUTH_USER` and `BASIC_AUTH_PASSWORD` are set Basic access authentication will be activated. 
-Make sure to use `https` when you set this up.
+Have a staging server? Want to protect it with authentication? When `BASIC_AUTH_USER` and `BASIC_AUTH_PASSWORD` are set basic authentication will be activated:
 
-    heroku config:set BASIC_AUTH_USER=THEUSER
-    heroku config:set BASIC_AUTH_PASSWORD=APASSWORD
+    heroku config:set BASIC_AUTH_USER=EXAMPLE_USER
+    heroku config:set BASIC_AUTH_PASSWORD=EXAMPLE_PASSWORD
+
+*Note: Be sure to use `https` when you set this up for added security.*
 
 ### Custom
 
