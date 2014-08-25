@@ -45,7 +45,7 @@ Have a staging server? Want to protect it with authentication? When `BASIC_AUTH_
     heroku config:set BASIC_AUTH_USER=EXAMPLE_USER
     heroku config:set BASIC_AUTH_PASSWORD=EXAMPLE_PASSWORD
 
-*Note: Be sure to use `https` when you set this up for added security.*
+*Be sure to use `https` when you set this up for added security.*
 
 ### Custom
 
