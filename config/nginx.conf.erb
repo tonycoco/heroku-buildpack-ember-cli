@@ -55,7 +55,7 @@ http {
         proxy_ssl_session_reuse off;
         proxy_set_header Host $http_host;
         proxy_redirect off;
-        <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Proxy on;<% end %>
+        <% if ENV["NGINX_DEBUG"] %>proxy_set_header X-Ember-Cli-Proxy on;<% end %>
       }
     <% end %>
 
@@ -68,10 +68,6 @@ http {
       <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Speed on;<% end %>
     }
 
-    location ~ /\. {
-      deny all;
-    }
-
     location ~* .(eot|oft|svg|ttf|woff)$ {
       add_header Access-Control-Allow-Origin *;
       expires max;
@@ -82,9 +78,14 @@ http {
       <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Fonts on;<% end %>
     }
 
+    location ~ /\. {
+      deny all;
+    }
+
     location / {
       expires off;
       try_files $uri $uri/ /index.html;
+      <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Base-Location on;<% end %>
     }
   }
 }
