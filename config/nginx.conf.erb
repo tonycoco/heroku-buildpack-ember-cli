@@ -59,7 +59,7 @@ http {
       }
     <% end %>
 
-    location ~* .(ogg|ogv|svg|svgz|eot|otf|woff|mp4|ttf|css|rss|atom|js|jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|doc|xls|exe|ppt|tar|mid|midi|wav|bmp|rtf|html|txt|htm)$ {
+    location ~* .(ogg|ogv|svgz|mp4|css|rss|atom|js|jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|doc|xls|exe|ppt|tar|mid|midi|wav|bmp|rtf|html|txt|htm)$ {
       expires max;
       log_not_found off;
       access_log off;
@@ -68,8 +68,13 @@ http {
       <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Speed on;<% end %>
     }
 
-    location ~* .(eot|oft|ttf|woff)$ {
+    location ~* .(eot|oft|svg|ttf|woff)$ {
       add_header Access-Control-Allow-Origin *;
+      expires max;
+      log_not_found off;
+      access_log off;
+      add_header Cache-Control public;
+      fastcgi_hide_header Set-Cookie;
       <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Fonts on;<% end %>
     }
 
