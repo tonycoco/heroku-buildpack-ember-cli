@@ -30,7 +30,7 @@ Set the number of workers for Nginx (Default: `4`):
 
 Set an API proxy URL:
 
-    heroku config:set API_URL=http://api.example.com
+    heroku config:set API_HOST=api.example.com
 
 Set your API's prefix path (Default: `/api/`):
 
