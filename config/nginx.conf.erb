@@ -41,10 +41,10 @@ http {
     root dist;
     index index.html;
 
-    <% if ENV["BASIC_AUTH_USER"] && ENV["BASIC_AUTH_PASSWORD"] %>
-      auth_basic "Restricted";
-      auth_basic_user_file <%= "#{ENV["HOME"]}/config/htpasswd" %>;
-    <% end %>
+    # <% if ENV["BASIC_AUTH_USER"] && ENV["BASIC_AUTH_PASSWORD"] %>
+    #   auth_basic "Restricted";
+    #   auth_basic_user_file <%= "#{ENV["HOME"]}/config/htpasswd" %>;
+    # <% end %>
 
     <% if ENV["API_HOST"] %>
       location <%= ENV["API_PREFIX_PATH"] || "/api/" %> {
@@ -59,33 +59,33 @@ http {
       }
     <% end %>
 
-    location ~* .(ogg|ogv|svgz|mp4|css|rss|atom|js|jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|doc|xls|exe|ppt|tar|mid|midi|wav|bmp|rtf|html|txt|htm)$ {
-      expires max;
-      log_not_found off;
-      access_log off;
-      add_header Cache-Control public;
-      fastcgi_hide_header Set-Cookie;
-      <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Speed on;<% end %>
-    }
+    # location ~* .(ogg|ogv|svgz|mp4|css|rss|atom|js|jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|doc|xls|exe|ppt|tar|mid|midi|wav|bmp|rtf|html|txt|htm)$ {
+    #   expires max;
+    #   log_not_found off;
+    #   access_log off;
+    #   add_header Cache-Control public;
+    #   fastcgi_hide_header Set-Cookie;
+    #   <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Speed on;<% end %>
+    # }
 
-    location ~* .(eot|oft|svg|ttf|woff)$ {
-      add_header Access-Control-Allow-Origin *;
-      expires max;
-      log_not_found off;
-      access_log off;
-      add_header Cache-Control public;
-      fastcgi_hide_header Set-Cookie;
-      <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Fonts on;<% end %>
-    }
+    # location ~* .(eot|oft|svg|ttf|woff)$ {
+    #   add_header Access-Control-Allow-Origin *;
+    #   expires max;
+    #   log_not_found off;
+    #   access_log off;
+    #   add_header Cache-Control public;
+    #   fastcgi_hide_header Set-Cookie;
+    #   <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Fonts on;<% end %>
+    # }
 
-    location ~ /\. {
-      deny all;
-    }
+    # location ~ /\. {
+    #   deny all;
+    # }
 
-    location / {
-      expires off;
-      try_files $uri $uri/ /index.html =404;
-      <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Base-Location on;<% end %>
-    }
+    # location / {
+    #   expires off;
+    #   try_files $uri $uri/ /index.html =404;
+    #   <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Base-Location on;<% end %>
+    # }
   }
 }
