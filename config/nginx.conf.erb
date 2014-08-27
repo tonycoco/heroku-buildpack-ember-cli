@@ -48,14 +48,14 @@ http {
 
     <% if ENV["API_HOST"] %>
       location <%= ENV["API_PREFIX_PATH"] || "/api/" %> {
+        proxy_pass http://api_server/;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-NginX-Proxy true;
-        proxy_pass http://api_server/;
         proxy_ssl_session_reuse off;
         proxy_set_header Host $http_host;
         proxy_redirect off;
-        <% if ENV["NGINX_DEBUG"] %>proxy_set_header X-Ember-Cli-Proxy on;<% end %>
+        <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Proxy on;<% end %>
       }
     <% end %>
 
@@ -84,7 +84,7 @@ http {
 
     location / {
       expires off;
-      try_files $uri $uri/ /index.html;
+      try_files $uri $uri/ /index.html =404;
       <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Base-Location on;<% end %>
     }
   }
