@@ -55,7 +55,7 @@ http {
         proxy_ssl_session_reuse off;
         proxy_set_header Host $http_host;
         proxy_redirect off;
-        add_header X-Ember-CLI-Proxy added;
+        <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Proxy on;<% end %>
       }
     <% end %>
 
@@ -65,12 +65,12 @@ http {
       access_log off;
       add_header Cache-Control public;
       fastcgi_hide_header Set-Cookie;
-      add_header X-Ember-CLI-Speed added;
+      <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Speed on;<% end %>
     }
 
-    location ~* "^.*?\.(eot)|(ttf)|(woff)$" {
+    location ~* .(eot|oft|ttf|woff)$ {
       add_header Access-Control-Allow-Origin *;
-      add_header X-Ember-CLI-Fonts added;
+      <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Fonts on;<% end %>
     }
 
     location / {
