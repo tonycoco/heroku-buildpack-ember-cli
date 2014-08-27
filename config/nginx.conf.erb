@@ -55,6 +55,7 @@ http {
         proxy_ssl_session_reuse off;
         proxy_set_header Host $http_host;
         proxy_redirect off;
+        add_header X-Ember-CLI-Proxy added;
       }
     <% end %>
 
@@ -64,10 +65,12 @@ http {
       access_log off;
       add_header Cache-Control public;
       fastcgi_hide_header Set-Cookie;
+      add_header X-Ember-CLI-Speed added;
     }
 
     location ~* "^.*?\.(eot)|(ttf)|(woff)$" {
       add_header Access-Control-Allow-Origin *;
+      add_header X-Ember-CLI-Fonts added;
     }
 
     location / {
