@@ -68,6 +68,10 @@ http {
       <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Speed on;<% end %>
     }
 
+    location ~ /\. {
+      deny all;
+    }
+
     location ~* .(eot|oft|svg|ttf|woff)$ {
       add_header Access-Control-Allow-Origin *;
       expires max;
@@ -80,10 +84,7 @@ http {
 
     location / {
       expires off;
-
-      if (!-e $request_filename){
-        rewrite ^(.*)$ /index.html break;
-      }
+      try_files $uri $uri/ /index.html;
     }
   }
 }
