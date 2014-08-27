@@ -28,12 +28,6 @@ http {
   default_type application/octet-stream;
   sendfile on;
 
-  <% if ENV["API_HOST"] %>
-    upstream api_server {
-      server <%= ENV["API_HOST"] %>;
-    }
-  <% end %>
-
   server {
     listen <%= ENV["PORT"] %>;
     server_name _;
@@ -46,14 +40,13 @@ http {
       auth_basic_user_file <%= "#{ENV["HOME"]}/config/htpasswd" %>;
     <% end %>
 
-    <% if ENV["API_HOST"] %>
+    <% if ENV["API_URL"] %>
       location <%= ENV["API_PREFIX_PATH"] || "/api/" %> {
+        proxy_pass <%= ENV["API_URL"] %>;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-NginX-Proxy true;
-        proxy_pass http://api_server/;
         proxy_ssl_session_reuse off;
-        proxy_set_header Host $http_host;
         proxy_redirect off;
         <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Proxy on;<% end %>
       }
@@ -75,15 +68,18 @@ http {
       access_log off;
       add_header Cache-Control public;
       fastcgi_hide_header Set-Cookie;
-      <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Fonts on;<% end %>
+      <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Font on;<% end %>
+    }
+
+    location ~ /\. {
+      deny all;
+      <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Denied on;<% end %>
     }
 
     location / {
       expires off;
-
-      if (!-e $request_filename){
-        rewrite ^(.*)$ /index.html break;
-      }
+      try_files $uri $uri/ /index.html =404;
+      <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Base-Location on;<% end %>
     }
   }
 }
