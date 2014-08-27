@@ -23,6 +23,12 @@ http {
   default_type application/octet-stream;
   sendfile on;
 
+  <% if ENV["API_URL"] %>
+    upstream api_server {
+      server <%= ENV["API_URL"] %>;
+    }
+  <% end %>
+
   server {
     listen <%= ENV["PORT"] %>;
     server_name _;
@@ -60,7 +66,7 @@ http {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-NginX-Proxy true;
-        proxy_pass <%= ENV["API_URL"] %>;
+        proxy_pass http://api_server/;
         proxy_ssl_session_reuse off;
         proxy_set_header Host $http_host;
         proxy_redirect off;
