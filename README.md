@@ -37,6 +37,15 @@ Set your API's prefix path (Default: `/api/`):
     heroku config:set API_PREFIX_PATH=/api/
 
 *Note that the trailing slashes are important. For more information about API proxies and avoiding CORS, [read this](http://oskarhane.com/avoid-cors-with-nginx-proxy_pass).*
+**This step requires that you specify a matching `namespace` on your Ember Data adapter. For example, you could use `app/adapters/application.js` as follows:**
+```javascript
+import DS from "ember-data";
+
+export default DS.RESTAdapter.extend({
+  namespace: 'api'
+});
+
+```
 
 #### Authentication
 
