@@ -47,6 +47,12 @@ Have a staging server? Want to protect it with authentication? When `BASIC_AUTH_
 
 *Be sure to use `https` when you set this up for added security.*
 
+#### Force HTTPS
+
+For most Ember applications that make any kind of authenticated requests (sending an auth token with a request for example), HTTPS should be used. Enable this feature in nginx by setting `FORCE_HTTPS`.
+
+    heroku config:set FORCE_HTTPS=true
+
 ### Custom
 
 Need to make a custom nginx configuration change? No problem. In your Ember CLI application, add a `config/nginx.conf.erb` file. You can copy the existing configuration file in this repo and make your changes to it.
