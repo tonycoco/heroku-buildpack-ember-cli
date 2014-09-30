@@ -56,3 +56,14 @@ For most Ember applications that make any kind of authenticated requests (sendin
 ### Custom
 
 Need to make a custom nginx configuration change? No problem. In your Ember CLI application, add a `config/nginx.conf.erb` file. You can copy the existing configuration file in this repo and make your changes to it.
+
+### Caching
+
+The Ember CLI buildpack caches your npm and bower dependencies be default. This is similar to the [Heroku Buildpack for Node.js](https://github.com/heroku/heroku-buildpack-nodejs). This makes typical deployments much faster. Note that dependencies like [`components/ember#canary`](http://www.ember-cli.com/#using-canary-build-instead-of-release) will not be updated on each deploy.
+
+To [purge the cache](https://github.com/heroku/heroku-repo#purge_cache) and reinstall all dependencies, run:
+
+```shell
+heroku plugins:install https://github.com/heroku/heroku-repo.git
+heroku repo:purge_cache -a APPNAME
+```

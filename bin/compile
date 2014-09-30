@@ -7,48 +7,146 @@ set -o pipefail   # don't ignore exit codes when piping output
 build_dir=$1
 cache_dir=$2
 env_dir=$3
-buildpack_dir=$(cd $(dirname $0); cd ..; pwd)
+bp_dir=$(cd $(dirname $0); cd ..; pwd)
+
+# Fix leak
+unset GIT_DIR
 
 # Load some convenience functions like status(), echo(), and indent()
-source $buildpack_dir/bin/common.sh
+source $bp_dir/bin/common.sh
 
 export_env_dir $env_dir
 build_env=${EMBER_ENV:-production}
 
 mkdir -p $build_dir/vendor
 
+# Output npm debug info on error
+trap cat_npm_debug_log ERR
+
+# Look in package.json's engines.node field for a semver range
+semver_range=$(cat $build_dir/package.json | $bp_dir/vendor/jq -r .engines.node)
+
+# Resolve node version using semver.io
+node_version=$(curl --silent --get --data-urlencode "range=${semver_range}" https://semver.io/node/resolve)
+
+# Recommend using semver ranges in a safe manner
+if [ "$semver_range" == "null" ]; then
+  protip "Specify a node version in package.json"
+  semver_range=""
+elif [ "$semver_range" == "*" ]; then
+  protip "Avoid using semver ranges like '*' in engines.node"
+elif [ ${semver_range:0:1} == ">" ]; then
+  protip "Avoid using semver ranges starting with '>' in engines.node"
+fi
+
+# Output info about requested range and resolved node version
+if [ "$semver_range" == "" ]; then
+  status "Defaulting to latest stable node: $node_version"
+else
+  status "Requested node range:  $semver_range"
+  status "Resolved node version: $node_version"
+fi
+
+# Download node from Heroku's S3 mirror of nodejs.org/dist
 status "Downloading and installing node"
-node_version=0.10.30
-node_url=http://s3pository.heroku.com/node/v$node_version/node-v$node_version-linux-x64.tar.gz
+node_url="http://s3pository.heroku.com/node/v$node_version/node-v$node_version-linux-x64.tar.gz"
 curl $node_url -s -o - | tar xzf - -C $build_dir
+
+# Move node (and npm) into ./vendor and make them executable
+mkdir -p $build_dir/vendor
 mv $build_dir/node-v$node_version-linux-x64 $build_dir/vendor/node
 chmod +x $build_dir/vendor/node/bin/*
 PATH=$build_dir/vendor/node/bin:$PATH
+
 
 status "Downloading and installing nginx"
 nginx_url=http://www.brettwhitelaw.com/pkg/nginx-1.6.0.tar.gz
 curl $nginx_url -s -o - | tar xzf - -C $build_dir/vendor
 
 status "Adding boot script"
-cp $buildpack_dir/bin/boot.sh $build_dir
+cp $bp_dir/bin/boot.sh $build_dir
 
 status "Copying configs"
 mkdir -p $build_dir/config
-cp $buildpack_dir/config/htpasswd.rb $build_dir/config
-cp $buildpack_dir/config/mime.types $build_dir/config
+cp $bp_dir/config/htpasswd.rb $build_dir/config
+cp $bp_dir/config/mime.types $build_dir/config
 if [[ ! -f $build_dir/config/nginx.conf.erb ]]; then
-  cp $buildpack_dir/config/nginx.conf.erb $build_dir/config
+  cp $bp_dir/config/nginx.conf.erb $build_dir/config
 else
   status "Custom nginx config found"
 fi
 
 cd $build_dir
 
+# If node_modules directory is checked into source control then
+# rebuild any native deps. Otherwise, restore from the build cache.
+if test -d $build_dir/node_modules; then
+  status "Found existing node_modules directory; skipping cache"
+  status "Rebuilding any native dependencies"
+  npm rebuild 2>&1 | indent
+elif test -d $cache_dir/node/node_modules; then
+  status "Restoring node_modules directory from cache"
+  cp -r $cache_dir/node/node_modules $build_dir/
+
+  status "Pruning cached dependencies not specified in package.json"
+  npm prune 2>&1 | indent
+
+  if test -f $cache_dir/node/.heroku/node-version && [ $(cat $cache_dir/node/.heroku/node-version) != "$node_version" ]; then
+    status "Node version changed since last build; rebuilding dependencies"
+    npm rebuild 2>&1 | indent
+  fi
+fi
+
+# Restore bower_components from cache if it exists
+if test -d $build_dir/bower_components; then
+  status "Found existing bower_components directory; skipping cache"
+elif test -d $cache_dir/bower_components; then
+  status "Restoring bower_components directory from cache"
+  cp -r $cache_dir/bower_components $build_dir/
+fi
+
 status "Installing dependencies"
-trap cat_npm_debug_log ERR # Output npm debug info on error
-npm install bower --quiet | indent
-npm install --quiet | indent
+# Make npm output to STDOUT instead of its default STDERR
+npm install --quiet --userconfig $build_dir/.npmrc 2>&1 | indent
+
+# Add the project's and ember-cli's dependencies' binaries to the PATH
+PATH=$build_dir/node_modules/.bin:$build_dir/node_modules/ember-cli/node_modules/.bin:$PATH
+
+status "Pruning cached bower dependencies not specified in bower.json"
+bower prune 2>&1 | indent
+
+# Persist goodies like node-version in the slug
+mkdir -p $build_dir/.heroku
+
+# Save resolved node version in the slug for later reference
+echo $node_version > $build_dir/.heroku/node-version
+
+# Purge node-related cached content, being careful not to purge the top-level
+# cache, for the sake of heroku-buildpack-multi apps.
+rm -rf $cache_dir/node_modules # (for apps still on the older caching strategy)
+rm -rf $cache_dir/node
+mkdir -p $cache_dir/node
+
+# If app has a node_modules directory, cache it.
+if test -d $build_dir/node_modules; then
+  status "Caching node_modules directory for future builds"
+  cp -r $build_dir/node_modules $cache_dir/node
+fi
+
+# Copy goodies to the cache
+cp -r $build_dir/.heroku $cache_dir/node
+
+status "Cleaning up node-gyp and npm artifacts"
+rm -rf "$build_dir/.node-gyp"
+rm -rf "$build_dir/.npm"
+
+bower install --quiet | indent
+
+# If app has a bower_components directory, cache it.
+if test -d $build_dir/bower_components; then
+  status "Caching bower_components directory for future builds"
+  cp -r $build_dir/bower_components $cache_dir/
+fi
 
 status "Building Ember CLI application $build_env distribution"
-node_modules/.bin/bower install --quiet | indent
 node_modules/ember-cli/bin/ember build --environment $build_env | indent
