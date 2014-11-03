@@ -14,6 +14,9 @@ http {
   gzip_disable "MSIE [1-6]\.(?!.*SV1)";
   gzip_comp_level 2;
   gzip_min_length 512;
+  gzip_proxied any;
+  gzip_vary on;
+  gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
 
   server_tokens off;
 
