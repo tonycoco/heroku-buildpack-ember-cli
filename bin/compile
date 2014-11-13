@@ -109,6 +109,26 @@ status "Installing bower which is required by other dependencies"
 npm install bower --quiet --userconfig $build_dir/.npmrc 2>&1 | indent
 PATH=$build_dir/node_modules/bower/bin:$PATH
 
+if [ -d "$env_dir" ]; then
+  status "Exporting config vars to environment"
+  export_env_dir $env_dir
+fi
+
+if [ "$GIT_SSH_KEY" != "" ]; then
+  status "Detected SSH key for git.  launching ssh-agent and loading key"
+  echo $GIT_SSH_KEY | base64 --decode > id_rsa
+  # launch ssh-agent, we'll use it to serve our ssh key
+  # and kill it towards the end of the buildpack's run
+  eval `ssh-agent -s`
+  # We're not supporting passphrases at this time.  We could pull that in
+  # from config as well, but then we'd have to setup expect or some other
+  # terminal automation tool to feed it into ssh-add.
+  ssh-add id_rsa
+  rm id_rsa
+  # Add github to the list of known hosts - ignore the warning or else set -e will abort the deployment
+  ssh -oStrictHostKeyChecking=no -T git@github.com || true
+fi
+
 status "Installing dependencies"
 # Make npm output to STDOUT instead of its default STDERR
 npm install --quiet --userconfig $build_dir/.npmrc 2>&1 | indent
@@ -145,6 +165,13 @@ rm -rf "$build_dir/.node-gyp"
 rm -rf "$build_dir/.npm"
 
 bower install --quiet | indent
+
+if [ "$GIT_SSH_KEY" != "" ]; then
+  # Now that npm & bower have finished running, we should not need the ssh key anymore.  Kill ssh-agent
+  eval `ssh-agent -k`
+  # Clear that sensitive key data from the environment
+  export GIT_SSH_KEY=0
+fi
 
 # If app has a bower_components directory, cache it.
 if test -d $build_dir/bower_components; then
