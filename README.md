@@ -53,6 +53,16 @@ For most Ember applications that make any kind of authenticated requests (sendin
 
     heroku config:set FORCE_HTTPS=true
 
+#### Private Repos
+
+Got private npm or bower GitHub repos? Configure a `GIT_SSH_KEY` so that Heroku can access these packages:
+
+    heroku config:set GIT_SSH_KEY=<base64-encoded-private-key>
+
+If present, the buildpack expects the base64 encoded contents of a private key whose public key counterpart has been registered with GitHub on an account with access to any private repositories needed by the application. Prior to executing `npm install` and `bower install` it decodes the contents into a file, launches ssh-agent and registers that keyfile. Once npm install is finished, it cleans up the environment and file system of the key contents.
+
+Private npm dependency URLs must be in the form of `git+ssh://git@github.com:[user]/[repo].git`. Private bower dependency URLs must be in the form of `git@github.com:[user]/[repo].git`. Either npm or bower URLs may have a trailing `#semver`.
+
 ### Custom
 
 Need to make a custom nginx configuration change? No problem. In your Ember CLI application, add a `config/nginx.conf.erb` file. You can copy the existing configuration file in this repo and make your changes to it.
