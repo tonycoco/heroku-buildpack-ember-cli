@@ -61,6 +61,42 @@ http {
       }
     <% end %>
 
+    <% if ENV["PRERENDER_HOST"] %>
+      # Based on the official Prerender.io gist https://gist.github.com/thoop/8165802
+      location @prerender {
+        <% if ENV["PRERENDER_TOKEN"] %>
+          proxy_set_header X-Prerender-Token <%= ENV["PRERENDER_TOKEN"] %>;
+        <% end %>
+        
+        set $prerender 0;
+        if ($http_user_agent ~* "baiduspider|twitterbot|facebookexternalhit|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot") {
+          set $prerender 1;
+        }
+        if ($args ~ "_escaped_fragment_") {
+          set $prerender 1;
+        }
+        if ($http_user_agent ~ "Prerender") {
+          set $prerender 0;
+        }
+        if ($uri ~ "\.(js|css|xml|less|png|jpg|jpeg|gif|pdf|doc|txt|ico|rss|zip|mp3|rar|exe|wmv|doc|avi|ppt|mpg|mpeg|tif|wav|mov|psd|ai|xls|mp4|m4a|swf|dat|dmg|iso|flv|m4v|torrent)") {
+          set $prerender 0;
+        }
+      
+        #resolve using Google's DNS server to force DNS resolution and prevent caching of IPs
+        resolver 8.8.8.8;
+
+        if ($prerender = 1) {
+          #setting prerender as a variable forces DNS resolution since nginx caches IPs and doesnt play well with load balancing
+          set $prerender <%= ENV["PRERENDER_HOST"] %>;
+          rewrite .* /$scheme://$host$request_uri? break;
+          proxy_pass http://$prerender;
+        }
+        if ($prerender = 0) {
+          rewrite .* /index.html break;
+        }
+      }
+    <% end %>
+
     location ~* \index.html$ {
       expires off;
       <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Html on;<% end %>
@@ -92,7 +128,13 @@ http {
 
     location / {
       expires off;
-      try_files $uri $uri/ /index.html =404;
+
+      <% if ENV["PRERENDER_HOST"] %>
+        try_files $uri @prerender;
+      <% else %>
+        try_files $uri $uri/ /index.html =404;
+      <% end %>
+
       <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Base-Location on;<% end %>
     }
   }
