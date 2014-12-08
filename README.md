@@ -53,6 +53,17 @@ For most Ember applications that make any kind of authenticated requests (sendin
 
     heroku config:set FORCE_HTTPS=true
 
+#### Prerender.io
+
+Prerender.io allows your Ember website to be crawled perfectly by search engines.
+
+Set the Prerender host and token:
+
+    heroku config:set PRERENDER_HOST=service.prerender.io
+    heroku config:set PRERENDER_TOKEN=your-prerender-token
+
+*Note that you can either sign up for the hosted [Prerender.io](https://prerender.io) service, or host it yourself. The project is open source over at https://github.com/prerender/prerender.*
+
 #### Private Repos
 
 Got private npm or bower GitHub repos? Configure a `GIT_SSH_KEY` so that Heroku can access these packages:
