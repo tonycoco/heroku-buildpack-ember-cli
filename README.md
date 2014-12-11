@@ -55,26 +55,26 @@ For most Ember applications that make any kind of authenticated requests (sendin
 
 #### Prerender.io
 
-Prerender.io allows your Ember website to be crawled perfectly by search engines.
+[Prerender.io](https://prerender.io) allows your application to be crawled by search engines.
 
-Set the Prerender host and token:
+Set the service's host and token:
 
     heroku config:set PRERENDER_HOST=service.prerender.io
-    heroku config:set PRERENDER_TOKEN=your-prerender-token
+    heroku config:set PRERENDER_TOKEN=<your-prerender-token>
 
-*Note that you can either sign up for the hosted [Prerender.io](https://prerender.io) service, or host it yourself. The project is open source over at https://github.com/prerender/prerender.*
+Sign up for the hosted [Prerender.io](https://prerender.io) service or host it yourself. See the [project's repo](https://github.com/prerender/prerender) for more information.
 
 #### Private Repos
 
-Got private npm or bower GitHub repos? Configure a `GIT_SSH_KEY` so that Heroku can access these packages:
+Got private NPM or Bower GitHub repos? Configure a `GIT_SSH_KEY` so that Heroku can access these packages:
 
     heroku config:set GIT_SSH_KEY=<base64-encoded-private-key>
 
-If present, the buildpack expects the base64 encoded contents of a private key whose public key counterpart has been registered with GitHub on an account with access to any private repositories needed by the application. Prior to executing `npm install` and `bower install` it decodes the contents into a file, launches ssh-agent and registers that keyfile. Once npm install is finished, it cleans up the environment and file system of the key contents.
+If present, the buildpack expects the base64 encoded contents of a private key whose public key counterpart has been registered with GitHub on an account with access to any private repositories needed by the application. Prior to executing `npm install` and `bower install` it decodes the contents into a file, launches ssh-agent and registers that keyfile. Once NPM install is finished, it cleans up the environment and file system of the key contents.
 
-Private npm dependency URLs must be in the form of `git+ssh://git@github.com:[user]/[repo].git`. Private bower dependency URLs must be in the form of `git@github.com:[user]/[repo].git`. Either npm or bower URLs may have a trailing `#semver`.
+Private NPM dependency URLs must be in the form of `git+ssh://git@github.com:[user]/[repo].git`. Private Bower dependency URLs must be in the form of `git@github.com:[user]/[repo].git`. Either NPM or Bower URLs may have a trailing `#semver`.
 
-### Custom
+### Custom Nginx
 
 Need to make a custom nginx configuration change? No problem. In your Ember CLI application, add a `config/nginx.conf.erb` file. You can copy the existing configuration file in this repo and make your changes to it.
 

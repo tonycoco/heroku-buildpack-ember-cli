@@ -67,7 +67,7 @@ http {
         <% if ENV["PRERENDER_TOKEN"] %>
           proxy_set_header X-Prerender-Token <%= ENV["PRERENDER_TOKEN"] %>;
         <% end %>
-        
+
         set $prerender 0;
         if ($http_user_agent ~* "baiduspider|twitterbot|facebookexternalhit|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot") {
           set $prerender 1;
@@ -81,12 +81,12 @@ http {
         if ($uri ~ "\.(js|css|xml|less|png|jpg|jpeg|gif|pdf|doc|txt|ico|rss|zip|mp3|rar|exe|wmv|doc|avi|ppt|mpg|mpeg|tif|wav|mov|psd|ai|xls|mp4|m4a|swf|dat|dmg|iso|flv|m4v|torrent)") {
           set $prerender 0;
         }
-      
-        #resolve using Google's DNS server to force DNS resolution and prevent caching of IPs
+
+        # Resolve using Google's DNS server to force DNS resolution and prevent caching of IPs
         resolver 8.8.8.8;
 
         if ($prerender = 1) {
-          #setting prerender as a variable forces DNS resolution since nginx caches IPs and doesnt play well with load balancing
+          # Setting Prerender.io as a variable forces DNS resolution since Nginx caches IPs and doesn't play well with load balancing
           set $prerender <%= ENV["PRERENDER_HOST"] %>;
           rewrite .* /$scheme://$host$request_uri? break;
           proxy_pass http://$prerender;
