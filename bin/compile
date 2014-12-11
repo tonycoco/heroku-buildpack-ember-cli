@@ -60,7 +60,7 @@ PATH=$build_dir/vendor/node/bin:$PATH
 
 
 status "Downloading and installing nginx"
-nginx_url=http://www.brettwhitelaw.com/pkg/nginx-1.6.0.tar.gz
+nginx_url=http://nginx.org/download/nginx-1.6.0.tar.gz
 curl $nginx_url -s -o - | tar xzf - -C $build_dir/vendor
 
 status "Adding boot script"
