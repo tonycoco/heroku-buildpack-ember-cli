@@ -59,7 +59,7 @@ chmod +x $build_dir/vendor/node/bin/*
 PATH=$build_dir/vendor/node/bin:$PATH
 
 status "Downloading and installing nginx"
-nginx_url=https://s3.amazonaws.com/devmynd-github/heroku-nginx-full-1.6.2.tar.gz
+nginx_url=https://s3.amazonaws.com/devmynd-github/heroku-nginx-1.6.0.tar.gz
 curl $nginx_url -s -o - | tar xzf - -C $build_dir/vendor
 
 status "Adding boot script"
