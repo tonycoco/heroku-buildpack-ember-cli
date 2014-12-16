@@ -178,5 +178,11 @@ if test -d $build_dir/bower_components; then
   cp -r $build_dir/bower_components $cache_dir/
 fi
 
+if test -f $bp_dir/bin/compass.sh; then
+  chmod u+x $bp_dir/bin/compass.sh
+  status "Compass detected.  Installing"
+  source $bp_dir/bin/compass.sh
+fi
+
 status "Building Ember CLI application $build_env distribution"
 node_modules/ember-cli/bin/ember build --environment $build_env | indent
