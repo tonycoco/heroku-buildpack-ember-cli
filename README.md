@@ -80,7 +80,7 @@ Need to make a custom nginx configuration change? No problem. In your Ember CLI 
 
 ### Caching
 
-The Ember CLI buildpack caches your npm and bower dependencies be default. This is similar to the [Heroku Buildpack for Node.js](https://github.com/heroku/heroku-buildpack-nodejs). This makes typical deployments much faster. Note that dependencies like [`components/ember#canary`](http://www.ember-cli.com/#using-canary-build-instead-of-release) will not be updated on each deploy.
+The Ember CLI buildpack caches your npm and bower dependencies by default. This is similar to the [Heroku Buildpack for Node.js](https://github.com/heroku/heroku-buildpack-nodejs). This makes typical deployments much faster. Note that dependencies like [`components/ember#canary`](http://www.ember-cli.com/#using-canary-build-instead-of-release) will not be updated on each deploy.
 
 To [purge the cache](https://github.com/heroku/heroku-repo#purge_cache) and reinstall all dependencies, run:
 
