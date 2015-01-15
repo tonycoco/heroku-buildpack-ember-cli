@@ -53,9 +53,22 @@ For most Ember applications that make any kind of authenticated requests (sendin
 
     heroku config:set FORCE_HTTPS=true
 
+#### Before and After Hooks
+
+You can run your own scripts by creating `after_hook.sh` or `before_hook.sh` files (or both) in your app's `hooks` directory:
+
+    mkdir hooks
+    cd hooks
+    touch after_hook.sh
+    touch before_hook.sh
+
+See the section on compass for an example.
+
 #### Compass
 
-If you want to compile your compass assets as part of the build process, first create a `compass.sh` file in the `bin` directory, then add this code to it:
+If you want to compile your compass assets as part of the build process, first create `after_hook.sh` in the `hooks` directory (see Before and After Hooks section), then add this code to it:
+
+    #!/usr/bin/env bash
 
     export GEM_HOME=$build_dir/.gem/ruby/1.9.1
     PATH="$GEM_HOME/bin:$PATH"
