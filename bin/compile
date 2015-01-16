@@ -110,7 +110,7 @@ elif test -d $cache_dir/bower_components; then
 fi
 
 status "Installing bower which is required by other dependencies"
-npm install bower --quiet --userconfig $build_dir/.npmrc 2>&1 | indent
+npm install bower -g --quiet --userconfig $build_dir/.npmrc 2>&1 | indent
 PATH=$build_dir/node_modules/bower/bin:$PATH
 
 if [ -d "$env_dir" ]; then
