@@ -184,7 +184,7 @@ if test -d $build_dir/bower_components; then
 fi
 
 if test -f $build_dir/hooks/after_hook.sh; then
-  status "After Hook detected. Here comes the crocodile..."
+  status "After hook detected. Running..."
   source $build_dir/hooks/after_hook.sh
 fi
 
