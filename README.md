@@ -53,6 +53,43 @@ For most Ember applications that make any kind of authenticated requests (sendin
 
     heroku config:set FORCE_HTTPS=true
 
+#### Before and After Hooks
+
+You can run your own scripts by creating `after_hook.sh` or `before_hook.sh` files (or both) in your app's `hooks` directory:
+
+    mkdir hooks
+    cd hooks
+    touch after_hook.sh
+    touch before_hook.sh
+
+See the section on compass for an example.
+
+#### Compass
+
+If you want to compile your compass assets as part of the build process, first create `after_hook.sh` in the `hooks` directory (see Before and After Hooks section), then add this code to it:
+
+    #!/usr/bin/env bash
+
+    export GEM_HOME=$build_dir/.gem/ruby/1.9.1
+    PATH="$GEM_HOME/bin:$PATH"
+    if test -d $cache_dir/ruby/.gem; then
+      status "Restoring ruby gems directory from cache"
+      cp -r $cache_dir/ruby/.gem $build_dir
+      HOME=$build_dir gem update compass --user-install --no-rdoc --no-ri
+    else
+      HOME=$build_dir gem install compass --user-install --no-rdoc --no-ri
+    fi
+
+    # cache ruby gems compass
+    rm -rf $cache_dir/ruby
+    mkdir -p $cache_dir/ruby
+
+    # If app has a gems directory, cache it.
+    if test -d $build_dir/.gem; then
+      status "Caching ruby gems directory for future builds"
+      cp -r $build_dir/.gem $cache_dir/ruby
+    fi
+
 #### Prerender.io
 
 [Prerender.io](https://prerender.io) allows your application to be crawled by search engines.

@@ -20,6 +20,11 @@ build_env=${EMBER_ENV:-production}
 
 mkdir -p $build_dir/vendor
 
+if test -f $build_dir/hooks/before_hook.sh; then
+  status "Before hook detected. Running..."
+  source $build_dir/hooks/before_hook.sh
+fi
+
 # Output npm debug info on error
 trap cat_npm_debug_log ERR
 
@@ -176,6 +181,11 @@ fi
 if test -d $build_dir/bower_components; then
   status "Caching bower_components directory for future builds"
   cp -r $build_dir/bower_components $cache_dir/
+fi
+
+if test -f $build_dir/hooks/after_hook.sh; then
+  status "After Hook detected. Here comes the crocodile..."
+  source $build_dir/hooks/after_hook.sh
 fi
 
 status "Building Ember CLI application $build_env distribution"
