@@ -52,12 +52,12 @@ http {
     <% if ENV["API_URL"] %>
       location <%= ENV["API_PREFIX_PATH"] || "/api/" %> {
         proxy_pass <%= ENV["API_URL"] %>;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-NginX-Proxy true;
+        proxy_set_header Real-IP $remote_addr;
+        proxy_set_header Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header NginX-Proxy true;
         proxy_ssl_session_reuse off;
         proxy_redirect off;
-        <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Proxy on;<% end %>
+        <% if ENV["NGINX_DEBUG"] %>add_header Ember-Cli-Proxy on;<% end %>
       }
     <% end %>
 
@@ -99,7 +99,7 @@ http {
 
     location ~* \index.html$ {
       expires off;
-      <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Html on;<% end %>
+      <% if ENV["NGINX_DEBUG"] %>add_header Ember-Cli-Html on;<% end %>
     }
 
     location ~* \.(ogg|ogv|svgz|mp4|css|rss|atom|js|jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|doc|xls|exe|ppt|tar|mid|midi|wav|bmp|rtf|html|txt|htm)$ {
@@ -108,7 +108,7 @@ http {
       access_log off;
       add_header Cache-Control public;
       fastcgi_hide_header Set-Cookie;
-      <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Speed on;<% end %>
+      <% if ENV["NGINX_DEBUG"] %>add_header Ember-Cli-Speed on;<% end %>
     }
 
     location ~* \.(eot|oft|svg|ttf|woff)$ {
@@ -118,12 +118,12 @@ http {
       access_log off;
       add_header Cache-Control public;
       fastcgi_hide_header Set-Cookie;
-      <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Font on;<% end %>
+      <% if ENV["NGINX_DEBUG"] %>add_header Ember-Cli-Font on;<% end %>
     }
 
     location ~ /\. {
       deny all;
-      <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Denied on;<% end %>
+      <% if ENV["NGINX_DEBUG"] %>add_header Ember-Cli-Denied on;<% end %>
     }
 
     location / {
@@ -135,7 +135,7 @@ http {
         try_files $uri $uri/ /index.html =404;
       <% end %>
 
-      <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Base-Location on;<% end %>
+      <% if ENV["NGINX_DEBUG"] %>add_header Ember-Cli-Base-Location on;<% end %>
     }
   }
 }
