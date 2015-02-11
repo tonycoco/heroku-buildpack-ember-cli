@@ -98,7 +98,7 @@ http {
     <% end %>
 
     location ~* \index.html$ {
-      expires off;
+      expires -1;
       <% if ENV["NGINX_DEBUG"] %>add_header X-Ember-Cli-Html on;<% end %>
     }
 
@@ -127,7 +127,7 @@ http {
     }
 
     location / {
-      expires off;
+      expires -1;
 
       <% if ENV["PRERENDER_HOST"] %>
         try_files $uri @prerender;
