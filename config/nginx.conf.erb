@@ -88,7 +88,13 @@ http {
         if ($prerender = 1) {
           # Setting Prerender.io as a variable forces DNS resolution since Nginx caches IPs and doesn't play well with load balancing
           set $prerender <%= ENV["PRERENDER_HOST"] %>;
-          rewrite .* /$scheme://$host$request_uri? break;
+
+          <% if ENV["FORCE_HTTPS"] && ENV["FORCE_HTTPS"] == "true" %>
+            rewrite .* /https://$host$request_uri? break;
+          <% else %>
+            rewrite .* /$scheme://$host$request_uri? break;
+          <% end %>
+
           proxy_pass http://$prerender;
         }
         if ($prerender = 0) {
