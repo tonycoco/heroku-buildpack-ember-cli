@@ -37,6 +37,7 @@ http {
     keepalive_timeout 5;
     root dist;
     index index.html;
+    port_in_redirect off;
 
     <% if ENV["FORCE_HTTPS"] && ENV["FORCE_HTTPS"] == "true" %>
       if ( $http_x_forwarded_proto != 'https' ) {
