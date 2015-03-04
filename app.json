@@ -1,0 +1,10 @@
+{
+  "name": "Ember CLI Application",
+  "description": "Ready for your Ember CLI application with the Ember CLI Buildpack set up",
+  "repository": "https://github.com/tonycoco/heroku-buildpack-ember-cli",
+  "logo": "http://emberjs.com/images/logos/ember-logo.png",
+  "keywords": ["ember", "ember.js", "ember-cli"],
+  "env": {
+    "BUILDPACK_URL": "https://github.com/tonycoco/heroku-buildpack-ember-cli.git"
+  }
+}

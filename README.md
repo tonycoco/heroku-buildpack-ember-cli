@@ -14,6 +14,10 @@ Creating a new Heroku instance from an Ember CLI application's parent directory:
     -----> Fetching custom buildpack
     ...
 
+Or, use the Heroku Deploy button:
+
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
+
 ## Configuration
 
 You can set a few different environment variables to turn on features in this buildpack.
@@ -23,6 +27,8 @@ You can set a few different environment variables to turn on features in this bu
 Set the number of workers for Nginx (Default: `4`):
 
     heroku config:set NGINX_WORKERS=4
+
+This will depend on your Heroku instance size and the amount of dynos.
 
 ### API Proxy
 
