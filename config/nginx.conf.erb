@@ -31,16 +31,29 @@ http {
   default_type application/octet-stream;
   sendfile on;
 
+  <% if ENV["NAKED_DOMAIN"] && !ENV["NAKED_DOMAIN"].empty? %>
+    server {
+      listen <%= ENV["PORT"] %>;
+      server_name <%= ENV["NAKED_DOMAIN"] %>;
+      return 301 $scheme://www.<%= ENV["NAKED_DOMAIN"] %>$request_uri;
+    }
+  <% end %>
+
   server {
+    <% if ENV["NAKED_DOMAIN"] && !ENV["NAKED_DOMAIN"].empty? %>
+      server_name www.<%= ENV["NAKED_DOMAIN"] %>;
+    <% else %>
+      server_name _;
+    <% end %>
+
     listen <%= ENV["PORT"] %>;
-    server_name _;
     keepalive_timeout 5;
     root dist;
     index index.html;
     port_in_redirect off;
 
     <% if ENV["FORCE_HTTPS"] && ENV["FORCE_HTTPS"] == "true" %>
-      if ( $http_x_forwarded_proto != 'https' ) {
+      if ($http_x_forwarded_proto != "https") {
         return 301 https://$host$request_uri;
       }
     <% end %>
