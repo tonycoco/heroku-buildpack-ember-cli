@@ -52,6 +52,10 @@ http {
     index index.html;
     port_in_redirect off;
 
+    <% if ENV["CLIENT_MAX_BODY_SIZE"] %>
+      client_max_body_size <% ENV["CLIENT_MAX_BODY_SIZE"] %>;
+    <% end %>
+
     <% if ENV["FORCE_HTTPS"] && ENV["FORCE_HTTPS"] == "true" %>
       if ($http_x_forwarded_proto != "https") {
         return 301 https://$host$request_uri;
