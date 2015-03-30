@@ -146,6 +146,22 @@ To [purge the cache](https://github.com/heroku/heroku-repo#purge_cache) and rein
     $ heroku plugins:install https://github.com/heroku/heroku-repo.git
     $ heroku repo:purge_cache -a APPNAME
 
+## Troubleshooting
+
+Clean your project's dependencies:
+
+    $ npm cache clear
+    $ bower cache clean
+    $ rm -rf node_modules bower_components
+    $ npm install
+    $ bower install
+
+Be sure to save any Bower or NPM resolutions. Now, let's build your Ember CLI application locally:
+
+    $ ember build
+
+Check your `git status` and see if that process has made any changes to your application's code. Now, try your Heroku deployment again.
+
 ## Contributing
 
 1. Fork it
