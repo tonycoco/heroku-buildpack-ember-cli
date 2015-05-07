@@ -111,7 +111,7 @@ For an after build hook:
 ```bash
 #!/usr/bin/env bash
 
-export GEM_HOME=$build_dir/.gem/ruby/1.9.1
+export GEM_HOME=$build_dir/.gem/ruby/2.2.0
 export PATH=$GEM_HOME/bin:$PATH
 
 if test -d $cache_dir/ruby/.gem; then
