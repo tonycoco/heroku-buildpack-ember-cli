@@ -175,3 +175,32 @@ Check your `git status` and see if that process has made any changes to your app
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+## Contributors
+
+A special thanks to everyone who maintains and helps out on the project!
+
+- Aaron Chambers
+- Aaron Ortbals
+- Aaron Renner
+- Adriaan
+- Adriaan van Rossum
+- Bill Curtis
+- Brett Chalupa
+- Chris Santero
+- John Griffin
+- Jonas Brusman
+- Jonathan Johnson
+- Jonathan Zempel
+- Jordan Morano
+- Juan Pablo Pinilla Ossa
+- Kori Roys
+- Matt McGinnis
+- Optimal Cadence
+- Peter Brown
+- Ryan LeFevre
+- Tony Coconate
+- harianus
+- sbl
+
+_Generated with: `git log --format='%aN' | sort -u`._
