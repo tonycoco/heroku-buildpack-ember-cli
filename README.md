@@ -86,8 +86,9 @@ If present, the buildpack expects the base64 encoded contents of a private key w
 
 Private NPM dependency URLs must be in the form of `git+ssh://git@github.com:[user]/[repo].git`. Private Bower dependency URLs must be in the form of `git@github.com:[user]/[repo].git`. Either NPM or Bower URLs may have a trailing `#semver`.
 
-### Ember-cli Build Environment
-Choose the environemnt you want to build by setting `EMBER_ENV`:
+### Environment
+
+Choose the environment you want to build by setting:
 
     $ heroku config:set EMBER_ENV=production
 
