@@ -57,7 +57,21 @@ http {
     <% end %>
 
     <% if ENV["FORCE_HTTPS"] && ENV["FORCE_HTTPS"] == "true" %>
-      if ($http_x_forwarded_proto != "https") {
+      set $cloudflare NO;
+      if ($http_cf_visitor ~* 'http') {
+        set $cloudflare YES;
+      }
+      if ($http_cf_visitor ~* '"http"') {
+        return 301 https://$host$request_uri;
+      }
+      set $cloudflare_heroku "${cloudflare}";
+      if ($http_x_forwarded_proto ~* 'http') {
+        set $cloudflare_heroku "${cloudflare_heroku}YES";
+      }
+      if ($http_x_forwarded_proto !~* 'https') {
+        set $cloudflare_heroku "${cloudflare_heroku}HTTP";
+      }
+      if ($cloudflare_heroku = NOYESHTTP) {
         return 301 https://$host$request_uri;
       }
     <% end %>
