@@ -40,7 +40,29 @@ http {
     port_in_redirect off;
 
     <% if ENV["FORCE_HTTPS"] && ENV["FORCE_HTTPS"] == "true" %>
-      if ( $http_x_forwarded_proto != 'https' ) {
+      <%# Set default value for CloudFlare %>
+      set $cloudflare NO;
+      <%# This matches http and https ($http_cf_visitor: {"scheme": "https"})%>
+      if ($http_cf_visitor ~* 'http') {
+        set $cloudflare YES;
+      }
+      <%# Redirect when is matches "http" (with quotes) %>
+      if ($http_cf_visitor ~* '"http"') {
+        return 301 https://$host$request_uri;
+      }
+    
+      <%# Only redirect when CloudFlare is false %>
+      set $cloudflare_heroku "${cloudflare}";
+      <%# Test for Heroku header, this matches http and https %>
+      if ($http_x_forwarded_proto ~* 'http') {
+        set $cloudflare_heroku "${cloudflare_heroku}YES";
+      }
+      <%# Test for "https" (without quotes) in Heroku header %>
+      if ($http_x_forwarded_proto !~* 'https') {
+        set $cloudflare_heroku "${cloudflare_heroku}HTTP";
+      }
+      <%# Redirect when CloudFlare is false and Heroku http is true %>
+      if ($cloudflare_heroku = NOYESHTTP) {
         return 301 https://$host$request_uri;
       }
     <% end %>
