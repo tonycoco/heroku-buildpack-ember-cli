@@ -159,7 +159,7 @@ Clean your project's dependencies:
     $ npm cache clear
     $ bower cache clean
     $ rm -rf node_modules bower_components
-    $ npm install
+    $ npm install --no-optional
     $ bower install
 
 Be sure to save any Bower or NPM resolutions. Now, let's build your Ember CLI application locally:
