@@ -99,31 +99,56 @@ fi
 
 cd $build_dir
 
-# If node_modules directory is checked into source control then
-# rebuild any native deps. Otherwise, restore from the build cache.
-if test -d $build_dir/node_modules; then
-  status "Found existing node_modules directory; skipping cache"
-  status "Rebuilding any native dependencies"
-  npm rebuild 2>&1 | indent
-elif test -d $cache_dir/node/node_modules; then
-  status "Restoring node_modules directory from cache"
-  cp -r $cache_dir/node/node_modules $build_dir/
+# Scan for any REBUILD flags
+rebuild_node_packages_file="$env_dir/REBUILD_NODE_PACKAGES"
+rebuild_bower_packages_file="$env_dir/REBUILD_BOWER_PACKAGES"
+rebuild_all_file="$env_dir/REBUILD_ALL"
 
-  status "Pruning cached dependencies not specified in package.json"
-  npm prune 2>&1 | indent
+if [[ -f $rebuild_node_packages_file ]]; then
+  rebuild_node_packages=$(cat $rebuild_node_packages_file)
+fi
 
-  if test -f $cache_dir/node/.heroku/node-version && [ $(cat $cache_dir/node/.heroku/node-version) != "$node_version" ]; then
-    status "Node version changed since last build; rebuilding dependencies"
+if [[ -f $rebuild_bower_packages_file ]]; then
+  rebuild_bower_packages=$(cat $rebuild_bower_packages_file)
+fi
+
+if [[ -f $rebuild_all_file ]]; then
+  rebuild_all=$(cat $rebuild_all_file)
+fi
+
+if [[ ( -n $rebuild_all ) || ( -n $rebuild_node_packages ) ]]; then
+  status "Forcing rebuild of all all node_modules.  Bypassing node_modules cache_dir."
+else
+  # If node_modules directory is checked into source control then
+  # rebuild any native deps. Otherwise, restore from the build cache.
+  if test -d $build_dir/node_modules; then
+    status "Found existing node_modules directory; skipping cache"
+    status "Rebuilding any native dependencies"
     npm rebuild 2>&1 | indent
+  elif test -d $cache_dir/node/node_modules; then
+    status "Restoring node_modules directory from cache"
+    cp -r $cache_dir/node/node_modules $build_dir/
+
+    status "Pruning cached dependencies not specified in package.json"
+    npm prune 2>&1 | indent
+
+    if test -f $cache_dir/node/.heroku/node-version && [ $(cat $cache_dir/node/.heroku/node-version) != "$node_version" ]; then
+      status "Node version changed since last build; rebuilding dependencies"
+      npm rebuild 2>&1 | indent
+    fi
   fi
 fi
 
-# Restore bower_components from cache if it exists
-if test -d $build_dir/bower_components; then
-  status "Found existing bower_components directory; skipping cache"
-elif test -d $cache_dir/bower_components; then
-  status "Restoring bower_components directory from cache"
-  cp -r $cache_dir/bower_components $build_dir/
+if [[ ( -n $rebuild_all ) || ( -n $rebuild_bower_packages ) ]]; then
+  status "Forcing re-installation of all all bower_components.  Bypassing bower_components cache_dir."
+else
+  # Restore bower_components from cache if it exists
+  if test -d $build_dir/bower_components; then
+    status "Found existing bower_components directory; skipping cache"
+  elif test -d $cache_dir/bower_components; then
+    status "Restoring bower_components directory from cache"
+    cp -r $cache_dir/bower_components $build_dir/
+  fi
 fi
 
 status "Installing bower which is required by other dependencies"

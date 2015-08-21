@@ -137,6 +137,31 @@ if test -d $build_dir/.gem; then
 fi
 ```
 
+### Force Rebuilds
+
+Sometimes it is necessary to rebuild NPM modules or Bower dependencies from scratch.  This can become necessary when updating Ember or EmberCLI midway through a project and cleaning the Bower and NPM caches doesn't always refresh the cache in the Dyno during the next deployment.  In those cases, here is a simple and clean way to force a rebuild.
+
+To force a rebuild of NPM modules *and* Bower dependencies:
+
+    heroku config:set REBUILD_ALL=true
+    git commit -am 'rebuild' --allow-empty
+    git push heroku master
+    heroku config:unset REBUILD_ALL
+
+To force a rebuild of just the NPM modules:
+
+    heroku config:set REBUILD_NODE_PACKAGES=true
+    git commit -am 'rebuild' --allow-empty
+    git push heroku master
+    heroku config:unset REBUILD_NODE_PACKAGES
+
+To force a rebuild of Bower dependencies:
+
+    heroku config:set REBUILD_BOWER_PACKAGES=true
+    git commit -am 'rebuild' --allow-empty
+    git push heroku master
+    heroku config:unset REBUILD_BOWER_PACKAGES
+
 ### Custom Nginx
 
 In your Ember CLI application, add a `config/nginx.conf.erb` file and add your own Nginx configuration.
