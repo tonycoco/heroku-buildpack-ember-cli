@@ -2,7 +2,7 @@
 
 set -e            # fail fast
 set -o pipefail   # don't ignore exit codes when piping output
-# set -x          # enable debugging
+# set -x            # enable debugging
 
 build_dir=$1
 cache_dir=$2
@@ -25,7 +25,7 @@ mkdir -p $build_dir/vendor
 trap cat_npm_debug_log ERR
 
 # Look in package.json's engines.node field for a semver range
-semver_range=$(cat $build_dir/package.json | $bp_dir/vendor/jq -r .engines.node)
+semver_range=$($bp_dir/vendor/jq -r .engines.node $build_dir/package.json)
 
 # Resolve node version using semver.io
 node_version=$(curl --silent --get --data-urlencode "range=${semver_range}" https://semver.io/node/resolve)
@@ -60,8 +60,9 @@ chmod +x $build_dir/vendor/node/bin/*
 PATH=$build_dir/vendor/node/bin:$PATH
 
 # Optionally bootstrap a different npm version
-npm_engine=$(cat $build_dir/package.json | $bp_dir/vendor/jq -r .engines.npm)
-if [ "$npm_engine" != "" ]; then
+npm_engine=$($bp_dir/vendor/jq -r .engines.npm $build_dir/package.json)
+
+if [ "$npm_engine" != "null" ]; then
   if ! [[ "$npm_engine" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     status "Resolving npm version ${npm_engine} via semver.io..."
     npm_engine=$(curl --silent --get --data-urlencode "range=${npm_engine}" https://semver.herokuapp.com/npm/resolve)
@@ -91,6 +92,7 @@ status "Copying configs"
 mkdir -p $build_dir/config
 cp $bp_dir/config/htpasswd.rb $build_dir/config
 cp $bp_dir/config/mime.types $build_dir/config
+
 if [[ ! -f $build_dir/config/nginx.conf.erb ]]; then
   cp $bp_dir/config/nginx.conf.erb $build_dir/config
 else
@@ -117,42 +119,58 @@ if [[ -f $rebuild_all_file ]]; then
 fi
 
 if [[ ( -n $rebuild_all ) || ( -n $rebuild_node_packages ) ]]; then
-  status "Forcing rebuild of all all node_modules.  Bypassing node_modules cache_dir."
-else
-  # If node_modules directory is checked into source control then
-  # rebuild any native deps. Otherwise, restore from the build cache.
-  if test -d $build_dir/node_modules; then
-    status "Found existing node_modules directory; skipping cache"
-    status "Rebuilding any native dependencies"
-    npm rebuild 2>&1 | indent
-  elif test -d $cache_dir/node/node_modules; then
-    status "Restoring node_modules directory from cache"
-    cp -r $cache_dir/node/node_modules $build_dir/
-
-    status "Pruning cached dependencies not specified in package.json"
-    npm prune 2>&1 | indent
-
-    if test -f $cache_dir/node/.heroku/node-version && [ $(cat $cache_dir/node/.heroku/node-version) != "$node_version" ]; then
-      status "Node version changed since last build; rebuilding dependencies"
-      npm rebuild 2>&1 | indent
-    fi
-  fi
+  status "Forcing rebuild of all node_modules. Pruning all node_modules."
+  rm -rf $build_dir/node_modules $cache_dir/node_modules
 fi
 
 if [[ ( -n $rebuild_all ) || ( -n $rebuild_bower_packages ) ]]; then
-  status "Forcing re-installation of all all bower_components.  Bypassing bower_components cache_dir."
+  status "Forcing re-installation of all bower_components. Pruning all bower_components."
+  rm -rf $build_dir/bower_components $cache_dir/bower_components
+fi
+
+# If node_modules directory is checked into source control then
+# rebuild any native deps. Otherwise, restore from the build cache.
+if test -d $build_dir/node_modules; then
+  status "Found existing node_modules directory; skipping cache"
+  status "Rebuilding any native dependencies"
+  npm rebuild 2>&1 | indent
 else
-  # Restore bower_components from cache if it exists
-  if test -d $build_dir/bower_components; then
-    status "Found existing bower_components directory; skipping cache"
-  elif test -d $cache_dir/bower_components; then
-    status "Restoring bower_components directory from cache"
-    cp -r $cache_dir/bower_components $build_dir/
+  if test -d $cache_dir/node_modules; then
+    status "Restoring node_modules directory from cache"
+  else
+    status "Creating node_modules cache directory"
+    mkdir -p $cache_dir/node_modules
+  fi
+
+  ln -s $cache_dir/node_modules $build_dir/node_modules
+
+  if test -f $cache_dir/.heroku/node-version && [ $(cat $cache_dir/.heroku/node-version) != "$node_version" ]; then
+    status "Node version changed since last build; rebuilding dependencies"
+    npm rebuild 2>&1 | indent
   fi
 fi
 
-status "Installing bower which is required by other dependencies"
-npm install bower --quiet --userconfig $build_dir/.npmrc 2>&1 | indent
+# Restore bower_components from cache if it exists
+if test -d $build_dir/bower_components; then
+  status "Found existing bower_components directory; skipping cache"
+else
+  if test -d $cache_dir/bower_components; then
+    status "Restoring bower_components directory from cache"
+  else
+    status "Creating bower_components cache directory"
+    mkdir -p $cache_dir/bower_components
+  fi
+
+  ln -s $cache_dir/bower_components $build_dir/bower_components
+fi
+
+if test -e $build_dir/node_modules/bower/bin/bower; then
+  status "Bower already exists"
+else
+  status "Installing bower which is required by other dependencies"
+  npm install bower --save-dev --quiet --no-optional --userconfig $build_dir/.npmrc 2>&1 | indent
+fi
+
 PATH=$build_dir/node_modules/bower/bin:$PATH
 
 if [ -d "$env_dir" ]; then
@@ -166,7 +184,6 @@ if [ "$GIT_SSH_KEY" != "" ]; then
   # launch ssh-agent, we'll use it to serve our ssh key
   # and kill it towards the end of the buildpack's run
   eval `ssh-agent -s`
-  
   # ssh-add doesn't like the default 644
   chmod 600 id_rsa
   # We're not supporting passphrases at this time.  We could pull that in
@@ -178,42 +195,30 @@ if [ "$GIT_SSH_KEY" != "" ]; then
   ssh -oStrictHostKeyChecking=no -T git@github.com || true
 fi
 
-status "Installing dependencies"
-# Make npm output to STDOUT instead of its default STDERR
-npm install --quiet --no-optional --userconfig $build_dir/.npmrc 2>&1 | indent
-
-# Add the project's and ember-cli's dependencies' binaries to the PATH
-PATH=$build_dir/node_modules/.bin:$build_dir/node_modules/ember-cli/node_modules/.bin:$PATH
+status "Pruning cached dependencies not specified in package.json"
+npm prune 2>&1 | indent
 
 status "Pruning cached bower dependencies not specified in bower.json"
 bower prune 2>&1 | indent
 
+status "Installing dependencies"
+# Make npm output to STDOUT instead of its default STDERR
+npm install --quiet --no-optional --userconfig $build_dir/.npmrc 2>&1 | indent
+bower install --quiet | indent
+
+# Add the project's and ember-cli's dependencies' binaries to the PATH
+PATH=$build_dir/node_modules/.bin:$build_dir/node_modules/ember-cli/node_modules/.bin:$PATH
+
 # Persist goodies like node-version in the slug
 mkdir -p $build_dir/.heroku
-
 # Save resolved node version in the slug for later reference
 echo $node_version > $build_dir/.heroku/node-version
-
-# Purge node-related cached content, being careful not to purge the top-level
-# cache, for the sake of heroku-buildpack-multi apps.
-rm -rf $cache_dir/node_modules # (for apps still on the older caching strategy)
-rm -rf $cache_dir/node
-mkdir -p $cache_dir/node
-
-# If app has a node_modules directory, cache it.
-if test -d $build_dir/node_modules; then
-  status "Caching node_modules directory for future builds"
-  cp -r $build_dir/node_modules $cache_dir/node
-fi
-
 # Copy goodies to the cache
-cp -r $build_dir/.heroku $cache_dir/node
+cp -r $build_dir/.heroku $cache_dir/
 
 status "Cleaning up node-gyp and npm artifacts"
 rm -rf "$build_dir/.node-gyp"
 rm -rf "$build_dir/.npm"
-
-bower install --quiet | indent
 
 if [ "$GIT_SSH_KEY" != "" ]; then
   # Now that npm & bower have finished running, we should not need the ssh key anymore.  Kill ssh-agent
@@ -222,19 +227,13 @@ if [ "$GIT_SSH_KEY" != "" ]; then
   export GIT_SSH_KEY=0
 fi
 
-# If app has a bower_components directory, cache it.
-if test -d $build_dir/bower_components; then
-  status "Caching bower_components directory for future builds"
-  cp -r $build_dir/bower_components $cache_dir/
-fi
-
 if test -f $build_dir/hooks/before_hook.sh; then
   status "Before hook detected. Running..."
   source $build_dir/hooks/before_hook.sh
 fi
 
 status "Building Ember CLI application $build_env distribution"
-node_modules/ember-cli/bin/ember build --environment $build_env | indent
+$build_dir/node_modules/ember-cli/bin/ember build --environment $build_env | indent
 
 if test -f $build_dir/hooks/after_hook.sh; then
   status "After hook detected. Running..."
