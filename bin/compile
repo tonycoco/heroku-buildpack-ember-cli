@@ -11,11 +11,17 @@ bp_dir=$(cd $(dirname $0); cd ..; pwd)
 
 # Fix leak
 unset GIT_DIR
-
 # Load some convenience functions like status(), echo(), and indent()
 source $bp_dir/bin/common.sh
 
+status "Exporting config vars to environment"
 export_env_dir $env_dir
+
+if [ "$BUILD_DEBUG" == "true" ]; then
+  status "Enable debugging"
+  set -x
+fi
+
 build_env=${EMBER_ENV:-production}
 status "Building environment: $build_env"
 
@@ -101,29 +107,12 @@ fi
 
 cd $build_dir
 
-# Scan for any REBUILD flags
-rebuild_node_packages_file="$env_dir/REBUILD_NODE_PACKAGES"
-rebuild_bower_packages_file="$env_dir/REBUILD_BOWER_PACKAGES"
-rebuild_all_file="$env_dir/REBUILD_ALL"
-
-if [[ -f $rebuild_node_packages_file ]]; then
-  rebuild_node_packages=$(cat $rebuild_node_packages_file)
-fi
-
-if [[ -f $rebuild_bower_packages_file ]]; then
-  rebuild_bower_packages=$(cat $rebuild_bower_packages_file)
-fi
-
-if [[ -f $rebuild_all_file ]]; then
-  rebuild_all=$(cat $rebuild_all_file)
-fi
-
-if [[ ( -n $rebuild_all ) || ( -n $rebuild_node_packages ) ]]; then
+if [ "$REBUILD_ALL" == "true" ] || [ "$REBUILD_NODE_PACKAGES" == "true" ]; then
   status "Forcing rebuild of all node_modules. Pruning all node_modules."
   rm -rf $build_dir/node_modules $cache_dir/node_modules
 fi
 
-if [[ ( -n $rebuild_all ) || ( -n $rebuild_bower_packages ) ]]; then
+if [ "$REBUILD_ALL" == "true" ] || [ "$REBUILD_BOWER_PACKAGES" == "true" ]; then
   status "Forcing re-installation of all bower_components. Pruning all bower_components."
   rm -rf $build_dir/bower_components $cache_dir/bower_components
 fi
@@ -172,11 +161,6 @@ else
 fi
 
 PATH=$build_dir/node_modules/bower/bin:$PATH
-
-if [ -d "$env_dir" ]; then
-  status "Exporting config vars to environment"
-  export_env_dir $env_dir
-fi
 
 if [ "$GIT_SSH_KEY" != "" ]; then
   status "Detected SSH key for git.  launching ssh-agent and loading key"
