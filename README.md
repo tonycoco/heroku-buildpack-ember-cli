@@ -1,3 +1,13 @@
+Note: A recent change to the buildpack has made caching much more aggressive. If you are having trouble deploying run...
+
+    $ heroku config:set REBUILD_ALL=true
+
+And push to your repo. Once that build is complete, your dependencies are rebuilt and cached. Now, unset the var...
+
+    $ heroku config:unset REBUILD_ALL
+
+Future deploys should now work much faster!
+
 # Heroku Buildpack for Ember CLI Applications
 
 This buildpack will work out of the box with Ember CLI generated applications. It installs Node, Nginx and generates a production build with the Ember CLI.
@@ -213,6 +223,9 @@ A special thanks to everyone who maintains and helps out on the project!
 - Bill Curtis
 - Brett Chalupa
 - Chris Santero
+- Donal Byrne
+- GabKlein
+- Gabriel Klein
 - John Griffin
 - Jonas Brusman
 - Jonathan Johnson
@@ -221,8 +234,10 @@ A special thanks to everyone who maintains and helps out on the project!
 - Juan Pablo Pinilla Ossa
 - Kori Roys
 - Matt McGinnis
+- Mayank Patel
 - Optimal Cadence
 - Peter Brown
+- Rob Guilfoyle
 - Ryan LeFevre
 - Tony Coconate
 - harianus
