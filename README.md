@@ -187,6 +187,12 @@ To [purge the cache](https://github.com/heroku/heroku-repo#purge_cache) and rein
     $ heroku plugins:install https://github.com/heroku/heroku-repo.git
     $ heroku repo:purge_cache -a APPNAME
 
+### IP Whitelist
+
+Setting `IP_WHITELIST` in your Herkou application to a comma delimited list of IP addresses or CIDR blocks will restrict access to your application to only those values.
+
+    $ heroku config:set IP_WHITELIST=192.168.0.0/24,192.168.1.42
+
 ## Troubleshooting
 
 Clean your project's dependencies:
