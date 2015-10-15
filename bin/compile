@@ -157,7 +157,7 @@ if test -e $build_dir/node_modules/bower/bin/bower; then
   status "Bower already exists"
 else
   status "Installing bower which is required by other dependencies"
-  npm install bower --save-dev --quiet --no-optional --userconfig $build_dir/.npmrc 2>&1 | indent
+  npm install bower@1.5.3 --save-dev --quiet --no-optional --userconfig $build_dir/.npmrc 2>&1 | indent
 fi
 
 PATH=$build_dir/node_modules/bower/bin:$PATH
