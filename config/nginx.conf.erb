@@ -57,11 +57,9 @@ http {
     <% end %>
 
     <% if ENV["FORCE_HTTPS"] && ENV["FORCE_HTTPS"] == "true" %>
-      <% if ENV["TRUSTED_PROTOCOL_HEADER"] && !ENV["TRUSTED_PROTOCOL_HEADER"].empty? %>
-        if ($http_<%= ENV["TRUSTED_PROTOCOL_HEADER"] %> !~* 'https') {
-          return 301 https://$host$request_uri;
-        }
-      <% end %>
+      if ($http_<%= ENV.fetch("TRUSTED_PROTOCOL_HEADER") %> !~* 'https') {
+        return 301 https://$host$request_uri;
+      }
     <% end %>
 
     <% if ENV["BASIC_AUTH_USER"] && ENV["BASIC_AUTH_PASSWORD"] %>
