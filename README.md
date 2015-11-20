@@ -65,9 +65,13 @@ Setting `BASIC_AUTH_USER` and `BASIC_AUTH_PASSWORD` in your Heroku application w
 
 ### Force HTTPS/SSL
 
-For most Ember applications that make any kind of authenticated requests HTTPS should be used. It supports the headers `X-Forwarded-Proto` ([used by Heroku](https://devcenter.heroku.com/articles/http-routing#heroku-headers)) and `CF-Visitor` ([used by CloudFlare](https://support.cloudflare.com/hc/en-us/articles/200170536-How-do-I-redirect-HTTPS-traffic-with-Flexible-SSL-and-Apache-)). Enable this feature in Nginx by setting `FORCE_HTTPS`:
+For most Ember applications that make any kind of authenticated requests HTTPS should be used.  It supports the headers `X-Forwarded-Proto` ([used by Heroku](https://devcenter.heroku.com/articles/http-routing#heroku-headers)) and `CF-Visitor` ([used by CloudFlare](https://support.cloudflare.com/hc/en-us/articles/200170536-How-do-I-redirect-HTTPS-traffic-with-Flexible-SSL-and-Apache-)).
 
-    $ heroku config:set FORCE_HTTPS=true
+This setting also requires setting `TRUSTED_PROTOCOL_HEADER` to `cf_visitor` for CloudFlare or `x_forwarded_proto` for Heroku.
+
+Enable this feature in Nginx by setting `FORCE_HTTPS` and `TRUSTED_PROTOCOL_HEADER`:
+
+    $ heroku config:set FORCE_HTTPS=true TRUSTED_PROTOCOL_HEADER=x_forwarded_proto
 
 ### Prerender.io
 
