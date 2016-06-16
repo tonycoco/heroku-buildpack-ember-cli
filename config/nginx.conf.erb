@@ -51,6 +51,7 @@ http {
     root dist;
     index index.html;
     port_in_redirect off;
+    include <%= ENV["HOME"] %>/config/nginx.d/*.conf;
 
     <% if ENV["CLIENT_MAX_BODY_SIZE"] %>
       client_max_body_size <%= ENV["CLIENT_MAX_BODY_SIZE"] %>;
