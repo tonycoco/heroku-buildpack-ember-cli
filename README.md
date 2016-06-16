@@ -211,6 +211,12 @@ Be sure to save any Bower or NPM resolutions. Now, let's build your Ember CLI ap
 
 Check your `git status` and see if that process has made any changes to your application's code. Now, try your Heroku deployment again.
 
+### NPM not installing anything in production
+
+Heroku will run npm scripts in `production` mode if your `NODE_ENV` is set to `production`. Since all Ember dependencies are in devDependencies, nothing will install. To fix this, run:
+
+    $ heroku config:set NPM_CONFIG_PRODUCTION=false
+
 ## Contributing
 
 1. Fork it
