@@ -69,6 +69,18 @@ For most Ember applications that make any kind of authenticated requests HTTPS s
 
     $ heroku config:set FORCE_HTTPS=true
 
+### LetsEncrypt support
+
+Using `heroku config:set ACME_CHALLENGE=<challenge-phrase>` allows the app to respond correctly to the call from a manual `certbot` command that is used to generate a LetsEncrypt SSL certificate.
+
+Follow these steps to get your free SSL certificate installed. (Assumes you have [SNI-SSL](https://devcenter.heroku.com/articles/ssl-beta) installed on your app.)
+
+    $ sudo certbot certonly --email=<your-email-address> --manual -d <your-domain-name>
+    $ heroku config:set ACME_CHALLENGE='<challenge phrase returned from the above command>'
+    # copy fullchain.pem privkey.pem locally from the path certbot put them
+    $ heroku _certs:update fullchain.pem privkey.pem
+    $ heroku config:unset ACME_CHALLENGE
+
 ### Prerender.io
 
 [Prerender.io](https://prerender.io) allows your application to be crawled by search engines.
