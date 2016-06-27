@@ -94,6 +94,13 @@ http {
       }
     <% end %>
 
+    <% if ENV["ACME_CHALLENGE"] %>
+      location ^~ /.well-known/acme-challenge/ {
+        return 200 '<%= ENV['ACME_CHALLENGE'] %>';
+        add_header Content-Type text/plain;
+      }
+    <% end %>
+
     <% if ENV["PRERENDER_HOST"] %>
       # Based on the official Prerender.io gist https://gist.github.com/thoop/8165802
       location @prerender {
