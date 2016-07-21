@@ -188,6 +188,14 @@ To force a rebuild of Bower dependencies:
 
 ### Custom Nginx
 
+You can install a custom build of Nginx by setting the $NGINX_URL:
+
+    $ heroku config:set NGINX_URL=<the url to your custom build of nginx>
+
+Without this set, the version of Nginx installed will be 1.6.0.
+
+### Custom Nginx config
+
 In your Ember CLI application, add a `config/nginx.conf.erb` file and add your own Nginx configuration.
 
 *You should copy the existing configuration file in this repo and make changes to it for best results.*
