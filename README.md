@@ -1,4 +1,10 @@
-Note: A recent change to the buildpack has made caching much more aggressive. If you are having trouble deploying run...
+# WARNING! This buildpack has beeen deprecated!
+
+Please use the official Heroku buildpack here: https://github.com/heroku/heroku-buildpack-emberjs
+
+# Notes
+
+A recent change to the buildpack has made caching much more aggressive. If you are having trouble deploying run...
 
     $ heroku config:set REBUILD_ALL=true
     $ heroku plugins:install https://github.com/heroku/heroku-repo.git
