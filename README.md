@@ -7,7 +7,7 @@ Please use the official Heroku buildpack here: https://github.com/heroku/heroku-
 A recent change to the buildpack has made caching much more aggressive. If you are having trouble deploying run...
 
     $ heroku config:set REBUILD_ALL=true
-    $ heroku plugins:install https://github.com/heroku/heroku-repo.git
+    $ heroku plugins:install heroku-repo
     $ heroku repo:purge_cache -a APPNAME
 
 Be sure to replace `APPNAME` with your app's name. Now, push your repo up. Once that build is complete, your dependencies are rebuilt and cached. Now, unset the var...
