@@ -1,4 +1,4 @@
-# WARNING! This buildpack has beeen deprecated!
+# WARNING! This buildpack has been deprecated!
 
 Please use the official Heroku buildpack here: https://github.com/heroku/heroku-buildpack-emberjs
 
