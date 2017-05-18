@@ -221,6 +221,12 @@ Setting `IP_WHITELIST` in your Herkou application to a comma delimited list of I
 
     $ heroku config:set IP_WHITELIST=192.168.0.0/24,192.168.1.42
 
+### Yarn
+
+The Ember CLI buildpack supports yarn. If a `yarn.lock` file is present, the buildpack will use `yarn install` instead of `npm install`.
+
+If a specific version of yarn is specified in `engines.yarn` within your `package.json`, it will use that version. Otherwise it will install the latest version.
+
 ## Troubleshooting
 
 Clean your project's dependencies:
