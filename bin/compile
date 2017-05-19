@@ -13,6 +13,8 @@ bp_dir=$(cd $(dirname $0); cd ..; pwd)
 unset GIT_DIR
 # Load some convenience functions like status(), echo(), and indent()
 source $bp_dir/bin/common.sh
+# Load functions for yarn compatibility
+source $bp_dir/bin/yarn.sh
 
 status "Exporting config vars to environment"
 export_env_dir $env_dir
@@ -174,26 +176,49 @@ fi
 status "Pruning cached dependencies not specified in package.json"
 npm prune 2>&1 | indent
 
-
 status "Installing dependencies"
-# Make npm output to STDOUT instead of its default STDERR
-npm install --quiet --no-optional --userconfig $build_dir/.npmrc 2>&1 | indent
 
-PATH=$build_dir/node_modules/.bin:$PATH
 
-if type bower > /dev/null 2>&1 || test -e $build_dir/node_modules/bower/bin/bower; then
-  status "Bower already exists"
-else
-  status "Installing bower which is required by other dependencies"
-  npm install bower --save-dev --quiet --no-optional --userconfig $build_dir/.npmrc 2>&1 | indent
+[ -f "$build_dir/bower.json" ] && use_bower=true || use_bower=false
+# we install bower before "yarn install", because a common practice is to have
+# a "postinstall": "bower install" step in package.json which would get run
+# after "yarn install"
+if $use_bower; then
+  status "Detected bower.json"
+
+  PATH=$build_dir/node_modules/.bin:$PATH
+
+  if type bower > /dev/null 2>&1 || test -e $build_dir/node_modules/bower/bin/bower; then
+    status "Bower already exists"
+  else
+    status "Installing bower which is required by other dependencies"
+    npm install bower --save-dev --quiet --no-optional --userconfig $build_dir/.npmrc 2>&1 | indent
+  fi
 fi
 
-PATH=$build_dir/node_modules/bower/bin:$PATH
+if [ -f "$build_dir/yarn.lock" ]; then
+  status "Detected yarn.lock, installing yarn"
 
-status "Pruning cached bower dependencies not specified in bower.json"
-bower prune 2>&1 | indent
+  install_yarn
 
-bower install --quiet | indent
+  echo "Installing node modules using yarn"
+  cd $build_dir
+  yarn install --pure-lockfile --ignore-engines 2>&1
+else
+  status "Installing node modules using npm"
+
+  # Make npm output to STDOUT instead of its default STDERR
+  npm install --quiet --no-optional --userconfig $build_dir/.npmrc 2>&1 | indent
+fi
+
+if $use_bower; then
+  PATH=$build_dir/node_modules/bower/bin:$PATH
+
+  status "Pruning cached bower dependencies not specified in bower.json"
+  bower prune 2>&1 | indent
+
+  bower install --quiet | indent
+fi
 
 # Add the project's and ember-cli's dependencies' binaries to the PATH
 PATH=$build_dir/node_modules/.bin:$build_dir/node_modules/ember-cli/node_modules/.bin:$PATH
