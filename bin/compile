@@ -176,6 +176,11 @@ fi
 status "Pruning cached dependencies not specified in package.json"
 npm prune 2>&1 | indent
 
+if test -f $build_dir/hooks/preinstall_hook.sh; then
+  status "Pre-install hook detected. Running..."
+  source $build_dir/hooks/preinstall_hook.sh
+fi
+
 status "Installing dependencies"
 
 
