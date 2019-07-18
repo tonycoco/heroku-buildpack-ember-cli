@@ -122,11 +122,16 @@ Choose the environment you want to build by setting:
 
     $ heroku config:set EMBER_ENV=production
 
-### Before and After Hooks
+### Pre-Install, Before, and After Hooks
 
-Have the buildpack run your own scripts before and after the `ember build` by creating a `hooks/before_hook.sh` or `hooks/after_hook.sh` file in your Ember CLI application:
+Have the buildpack run your own scripts before dependency installation by creating a `hooks/preinstall_hook.sh`, or before and after the `ember build` by creating a `hooks/before_hook.sh` or `hooks/after_hook.sh` file in your Ember CLI application:
 
     $ mkdir -p hooks
+
+For a hook before installing dependencies:
+
+    $ touch hooks/preinstall_hook.sh
+    $ chmod +x hooks/preinstall_hook.sh
 
 For a before build hook:
 
@@ -139,6 +144,18 @@ For an after build hook:
     $ chmod +x hooks/after_hook.sh
 
 *See below for examples.*
+
+#### Example Pre-Install Hook: NPM Registry Login
+
+If you need to log into a private registry, create `hooks/preinstall_hook.sh` and add the following script. Make sure `NPM_TOKEN` is including in your Heroku enviroment variables.
+
+```bash
+#!/usr/bin/env bash
+
+echo "Log in to your private NPM registry"
+
+echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
+```
 
 #### Example Before Hook: Compass
 
